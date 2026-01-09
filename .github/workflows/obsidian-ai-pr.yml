@@ -1,0 +1,37 @@
+name: Obsidian AI PR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  enrich-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install OpenAI
+        run: pip install openai
+
+      - name: Enrich notes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python .github/scripts/enrich_notes.py
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore: enrich obsidian notes'
+          title: 'chore: enrich obsidian notes'
+          body: 'Automated enrichment of obsidian notes.'
+          branch: 'chore/obsidian-notes'
