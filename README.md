@@ -1,4 +1,4 @@
-# Obsidian Vault
+# Creative Convector — Obsidian Vault
 
 Хранилище заметок с синхронизацией в GitHub для работы с AI-агентами.
 
