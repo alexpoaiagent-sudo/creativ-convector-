@@ -1,0 +1,21 @@
+# Игнорируемые файлы
+
+# Obsidian
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Временные файлы
+*.tmp
+*.temp
+~$*
+
+# Конфиденциальные данные
+**/private/
+**/confidential/
