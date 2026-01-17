@@ -1,0 +1,26 @@
+{
+  "shells": [
+    {
+      "id": "ai-analysis",
+      "name": "AI Analysis",
+      "command": "export OPENAI_API_KEY='{{OPENAI_API_KEY}}' && python3 {{vault_path}}/.obsidian/scripts/ai_agent.py {{file_path}}",
+      "icon": "🤖",
+      "showInCommandPalette": true,
+      "showInFileMenu": true
+    },
+    {
+      "id": "git-status",
+      "name": "Git Status",
+      "command": "cd {{vault_path}} && git status",
+      "icon": "📊",
+      "showInCommandPalette": true
+    },
+    {
+      "id": "git-commit-push",
+      "name": "Git Commit & Push",
+      "command": "cd {{vault_path}} && git add . && git commit -m 'update: {{date}}' && git push",
+      "icon": "🚀",
+      "showInCommandPalette": true
+    }
+  ]
+}

@@ -19,3 +19,4 @@
 # Конфиденциальные данные
 **/private/
 **/confidential/
+.env
