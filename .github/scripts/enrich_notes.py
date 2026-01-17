@@ -77,7 +77,7 @@ def enrich_note(content, filepath):
         print(f"🤖 Enriching: {filepath}")
 
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "Ты эксперт по организации знаний и заметок в Obsidian."},
                 {"role": "user", "content": prompt}
