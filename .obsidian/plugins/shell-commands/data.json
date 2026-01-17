@@ -1,9 +1,25 @@
 {
   "shells": [
     {
+      "id": "weekly-report",
+      "name": "Generate Weekly Report",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/weekly_report.py",
+      "icon": "📊",
+      "showInCommandPalette": true,
+      "showInFileMenu": false
+    },
+    {
+      "id": "enhance-note",
+      "name": "AI: Enhance Note",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/enhance_note.py {{file_path}}",
+      "icon": "✨",
+      "showInCommandPalette": true,
+      "showInFileMenu": true
+    },
+    {
       "id": "ai-analysis",
-      "name": "AI Analysis",
-      "command": "export OPENAI_API_KEY='{{OPENAI_API_KEY}}' && python3 {{vault_path}}/.obsidian/scripts/ai_agent.py {{file_path}}",
+      "name": "AI: Create Separate Analysis",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/ai_agent.py {{file_path}}",
       "icon": "🤖",
       "showInCommandPalette": true,
       "showInFileMenu": true
