@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "quint-code": {
+      "command": "/Users/alexander/.local/bin/quint-code",
+      "args": [
+        "serve"
+      ],
+      "cwd": "/Users/alexander/creativ-convector-",
+      "env": {
+        "QUINT_PROJECT_ROOT": "/Users/alexander/creativ-convector-"
+      }
+    }
+  }
+}

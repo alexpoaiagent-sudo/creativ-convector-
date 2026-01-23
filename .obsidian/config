@@ -1,0 +1,13 @@
+{
+  "excluded": [
+    ".git",
+    ".github",
+    ".obsidian",
+    ".quint",
+    ".mcp.json",
+    "src",
+    "System"
+  ],
+  "showExistingOnly": false,
+  "attachmentFolderPath": "System/Вложения"
+}

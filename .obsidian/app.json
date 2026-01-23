@@ -1,0 +1,30 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "1. Исчезающие заметки",
+  "attachmentFolderPath": "System/Вложения",
+  "useMarkdownLinks": true,
+  "showFrontmatter": true,
+  "foldHeading": true,
+  "foldIndent": true,
+  "showLineNumber": false,
+  "spellcheck": true,
+  "spellcheckLanguages": [
+    "ru",
+    "en-US"
+  ],
+  "strictLineBreaks": false,
+  "showUnsupportedFiles": false,
+  "promptDelete": true,
+  "trashOption": "system",
+  "defaultViewMode": "source",
+  "userIgnoreFilters": [
+    ".git/",
+    ".github/",
+    ".obsidian/",
+    ".quint/",
+    ".mcp.json",
+    "src/",
+    "System/"
+  ]
+}
