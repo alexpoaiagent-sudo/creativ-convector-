@@ -1,0 +1,47 @@
+name: AI Agent - Distribute Notes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '1. Исчезающие заметки/**'
+  workflow_dispatch:
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check for new notes
+        id: check
+        run: |
+          count=$(find "1. Исчезающие заметки" -name "*.md" ! -name "README.md" 2>/dev/null | wc -l)
+          echo "note_count=$count" >> $GITHUB_OUTPUT
+          echo "Found $count notes to process"
+
+      - name: Run AI distribute agent
+        if: steps.check.outputs.note_count != '0'
+        run: python3 .github/scripts/distribute_notes.py
+
+      - name: Commit and push results
+        if: steps.check.outputs.note_count != '0'
+        run: |
+          git config user.name "AI Agent"
+          git config user.email "ai-agent@obsidian.local"
+          git add -A
+          git diff --staged --quiet || git commit -m "ai: distribute ${{ steps.check.outputs.note_count }} notes from Исчезающие заметки"
+          git push

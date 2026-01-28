@@ -1,4 +1,6 @@
 {
   "promptDelete": false,
-  "showLineNumber": true
+  "showLineNumber": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "1. Исчезающие заметки"
 }
