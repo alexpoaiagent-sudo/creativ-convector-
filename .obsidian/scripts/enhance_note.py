@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """
 AI помощник для работы с заметкой
-Добавляет AI анализ и рекомендации прямо в текущую заметку
+Добавляет AI анализ и рекомендации прямо в текущую заметку.
+Поддерживает Claude (Anthropic) и ChatGPT (OpenAI).
 """
 
 import os
 import sys
-from openai import OpenAI
 
-def enhance_note_inline(file_path, api_key):
+# Добавляем путь к скриптам
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ai_provider import get_provider
+
+
+def enhance_note_inline(file_path, provider):
     """Улучшить заметку, добавив AI анализ в конец"""
 
     # Читаем заметку
@@ -16,20 +21,20 @@ def enhance_note_inline(file_path, api_key):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
-        print(f"❌ Ошибка чтения файла: {e}")
+        print(f"Ошибка чтения файла: {e}")
         return False
 
     # Проверяем, есть ли уже AI анализ
-    if "## 🤖 AI Помощник" in content:
-        print("ℹ️  AI анализ уже есть в заметке. Обновляю...")
-        # Удаляем старый анализ
-        content = content.split("## 🤖 AI Помощник")[0].rstrip()
+    if "## AI Помощник" in content:
+        print("AI анализ уже есть в заметке. Обновляю...")
+        content = content.split("## AI Помощник")[0].rstrip()
+        # Убрать разделитель перед секцией
+        if content.endswith("---"):
+            content = content[:-3].rstrip()
 
-    client = OpenAI(api_key=api_key)
+    system_prompt = "Ты эксперт по работе со знаниями и заметками."
 
-    prompt = f"""Ты AI помощник для работы с заметками в Obsidian.
-
-Проанализируй эту заметку и предоставь:
+    user_prompt = f"""Проанализируй эту заметку и предоставь:
 
 1. **Краткое резюме** (2-3 предложения)
 2. **Ключевые идеи** (список)
@@ -46,78 +51,68 @@ def enhance_note_inline(file_path, api_key):
 {content}
 ---
 
-Ответ должен быть кратким, структурированным, на русском языке, в формате Markdown.
-"""
+Ответ должен быть кратким, структурированным, на русском языке, в формате Markdown."""
 
     try:
-        print("🤖 Анализирую заметку...")
+        print(f"[{provider.name}] Анализирую заметку...")
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Ты эксперт по работе со знаниями и заметками."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=1500
+        ai_section = provider.chat(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            max_tokens=1500,
+            temperature=0.7
         )
-
-        ai_section = response.choices[0].message.content.strip()
 
         # Добавляем AI анализ в конец заметки
         enhanced_content = f"""{content}
 
 ---
 
-## 🤖 AI Помощник
+## AI Помощник
+
+> Провайдер: **{provider.name}** ({provider.model})
 
 {ai_section}
 
 ---
 
-*AI анализ создан автоматически. Для обновления: `Cmd + P` → "AI: Enhance Note"*
+*AI анализ создан автоматически. Для обновления: Cmd+P -> "AI: Enhance Note"*
 """
 
         # Сохраняем
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(enhanced_content)
 
-        print(f"✅ Заметка улучшена! AI анализ добавлен в конец файла.")
+        print(f"[{provider.name}] Заметка улучшена! AI анализ добавлен.")
         return True
 
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+        print(f"Ошибка: {e}")
         return False
+
 
 def main():
     if len(sys.argv) < 2:
-        print("❌ Использование: python3 enhance_note.py <путь_к_заметке>")
+        print("Использование: python3 enhance_note.py <путь_к_заметке> [claude|openai]")
         sys.exit(1)
 
     file_path = sys.argv[1]
 
     if not os.path.exists(file_path):
-        print(f"❌ Файл не найден: {file_path}")
+        print(f"Файл не найден: {file_path}")
         sys.exit(1)
 
-    # Получаем API ключ
-    api_key = os.environ.get('OPENAI_API_KEY')
-    if not api_key:
-        # Пробуем прочитать из .env
-        vault_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        env_file = os.path.join(vault_path, '.env')
-        if os.path.exists(env_file):
-            with open(env_file, 'r') as f:
-                for line in f:
-                    if line.startswith('OPENAI_API_KEY='):
-                        api_key = line.split('=', 1)[1].strip()
-                        break
+    # Определяем провайдера
+    provider_name = sys.argv[2] if len(sys.argv) > 2 else None
 
-    if not api_key:
-        print("❌ OPENAI_API_KEY не найден")
+    try:
+        provider = get_provider(provider_name)
+    except (ValueError, ImportError) as e:
+        print(f"Ошибка: {e}")
         sys.exit(1)
 
-    enhance_note_inline(file_path, api_key)
+    enhance_note_inline(file_path, provider)
+
 
 if __name__ == "__main__":
     main()
