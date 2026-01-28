@@ -1,234 +1,350 @@
 #!/usr/bin/env python3
 """
-Распределение заметок из "Исчезающих" по черновикам проектов
-Использует Claude API для анализа и категоризации заметок
+AI агент для распределения заметок - упрощенная версия на основе ключевых слов
+
+Автоматически определяет проект по ключевым словам в содержимом заметки
 """
 
 import os
 import sys
 import json
-from pathlib import Path
 from datetime import datetime
-import anthropic
+from pathlib import Path
 
-# Конфигурация проектов
+# Настройки
+VAULT_PATH = Path(__file__).parent.parent.parent
+VANISHING_NOTES = VAULT_PATH / "1. Исчезающие заметки"
+DRAFTS_PATH = VAULT_PATH / "2. Черновики"
+REPORTS_PATH = VAULT_PATH / "System" / "Отчёты AI"
+PRIORITY_PROJECTS = VAULT_PATH / "3. Приоритетные проекты"
+
+# Конфигурация проектов с ключевыми словами
 PROJECTS = {
     "VK-Coffee": {
-        "keywords": ["кофе", "бариста", "кофейня", "эспрессо", "латте", "капучино", "вк", "кофемаркет"],
-        "description": "Развитие сети кофеен"
+        "keywords": ["кофе", "бариста", "кофейня", "эспрессо", "латте", "капучино", "вк", "кофемаркет", "клиент", "заказ", "меню", "напиток"],
+        "description": "Развитие кофейного маркета"
     },
     "Marathon-v2": {
-        "keywords": ["марафон", "адаптация", "обучение", "онбординг", "сотрудник", "программа"],
+        "keywords": ["марафон", "адаптация", "обучение", "онбординг", "сотрудник", "программа", "тренинг", "курс"],
         "description": "Программа адаптации сотрудников"
     },
     "Creative-Convector": {
-        "keywords": ["заметки", "obsidian", "система", "конвейер", "структура", "fpf"],
+        "keywords": ["заметки", "obsidian", "система", "конвейер", "структура", "fpf", "агент", "автоматизация", "git"],
         "description": "Система управления заметками"
     }
 }
 
-# Роли FPF (таблица 3×3)
+# FPF роли с ключевыми словами
 FPF_ROLES = {
-    "F1": "Контекст и рынок (Предприниматель + Надсистема)",
-    "F2": "Окружение и интерфейсы (Инженер + Надсистема)",
-    "F3": "Взаимодействие и партнёрства (Менеджер + Надсистема)",
-    "F4": "Требования и ценность (Предприниматель + Целевая система)",
-    "F5": "Архитектура продукта (Инженер + Целевая система)",
-    "F6": "Реализация и процессы (Менеджер + Целевая система)",
-    "F7": "Принципы и экономика (Предприниматель + Система создания)",
-    "F8": "Платформа и инструменты (Инженер + Система создания)",
-    "F9": "Команда и методология (Менеджер + Система создания)"
+    "F1": {
+        "name": "Контекст",
+        "keywords": ["зачем", "контекст", "рынок", "проблема", "возможность", "тренд"]
+    },
+    "F2": {
+        "name": "Окружение",
+        "keywords": ["окружение", "интерфейс", "интеграция", "api", "внешний"]
+    },
+    "F3": {
+        "name": "Взаимодействие",
+        "keywords": ["взаимодействие", "партнер", "клиент", "пользователь", "коммуникация"]
+    },
+    "F4": {
+        "name": "Требования",
+        "keywords": ["требование", "функция", "фича", "нужно", "должен", "хочу", "идея"]
+    },
+    "F5": {
+        "name": "Архитектура",
+        "keywords": ["архитектура", "структура", "дизайн", "компонент", "модуль", "система"]
+    },
+    "F6": {
+        "name": "Реализация",
+        "keywords": ["реализация", "код", "разработка", "имплементация", "процесс", "workflow"]
+    },
+    "F7": {
+        "name": "Принципы",
+        "keywords": ["принцип", "экономика", "бизнес", "модель", "стратегия"]
+    },
+    "F8": {
+        "name": "Платформа",
+        "keywords": ["платформа", "инструмент", "технология", "фреймворк", "библиотека"]
+    },
+    "F9": {
+        "name": "Команда",
+        "keywords": ["команда", "люди", "роль", "методология", "процесс", "управление"]
+    }
 }
 
-def get_notes_from_inbox():
-    """Получить все заметки из папки Исчезающие заметки"""
-    inbox_path = Path("1. Исчезающие заметки")
 
-    if not inbox_path.exists():
-        print("❌ Папка '1. Исчезающие заметки' не найдена")
-        return []
+def analyze_by_keywords(content):
+    """Анализ заметки по ключевым словам"""
+    content_lower = content.lower()
 
-    notes = []
-    for file in inbox_path.glob("*.md"):
-        if file.name == "README.md":
-            continue
+    # Определить проект
+    project_scores = {}
+    for project_name, project_info in PROJECTS.items():
+        score = sum(1 for keyword in project_info["keywords"] if keyword in content_lower)
+        project_scores[project_name] = score
 
-        try:
-            content = file.read_text(encoding='utf-8')
-            notes.append({
-                "path": file,
-                "name": file.name,
-                "content": content
-            })
-        except Exception as e:
-            print(f"⚠️  Ошибка чтения {file.name}: {e}")
+    # Выбрать проект с максимальным score
+    best_project = max(project_scores, key=project_scores.get)
+    best_score = project_scores[best_project]
 
-    return notes
+    # Если score слишком низкий, создать новый проект
+    if best_score < 2:
+        # Попробовать извлечь название из первой строки
+        first_line = content.split('\n')[0].strip('#').strip()
+        if len(first_line) > 3 and len(first_line) < 50:
+            best_project = first_line
+            is_new = True
+        else:
+            best_project = "Разное"
+            is_new = True
+    else:
+        is_new = False
 
-def analyze_note_with_claude(note):
-    """Анализ заметки с помощью Claude API"""
-    api_key = os.environ.get('ANTHROPIC_API_KEY')
-    if not api_key:
-        print("❌ ANTHROPIC_API_KEY не установлен")
-        return None
+    # Определить роль FPF
+    role_scores = {}
+    for role_code, role_info in FPF_ROLES.items():
+        score = sum(1 for keyword in role_info["keywords"] if keyword in content_lower)
+        role_scores[role_code] = score
 
-    client = anthropic.Anthropic(api_key=api_key)
+    best_role = max(role_scores, key=role_scores.get)
 
-    projects_info = "\n".join([
-        f"- {name}: {info['description']} (ключевые слова: {', '.join(info['keywords'])})"
-        for name, info in PROJECTS.items()
-    ])
+    # Если нет явных ключевых слов, использовать F4 (Требования) по умолчанию
+    if role_scores[best_role] == 0:
+        best_role = "F4"
 
-    roles_info = "\n".join([f"- {role}: {desc}" for role, desc in FPF_ROLES.items()])
+    # Извлечь первые 100 символов как описание
+    description = content[:100].replace('\n', ' ').strip()
+    if len(content) > 100:
+        description += "..."
 
-    prompt = f"""Проанализируй заметку и определи:
-1. К какому проекту она относится
-2. Какую роль FPF она выполняет (F1-F9)
+    # Извлечь теги из содержимого (слова, которые встречаются часто)
+    words = content_lower.split()
+    word_freq = {}
+    for word in words:
+        if len(word) > 3 and word.isalpha():
+            word_freq[word] = word_freq.get(word, 0) + 1
 
-Доступные проекты:
-{projects_info}
+    # Топ-3 слова как теги
+    top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:3]
+    tags = [word for word, freq in top_words]
 
-Роли FPF (таблица 3×3):
-{roles_info}
+    return {
+        "project": best_project,
+        "role": best_role,
+        "description": description,
+        "tags": tags,
+        "is_new_project": is_new,
+        "confidence": best_score
+    }
 
-Заметка:
----
-{note['content'][:1000]}
----
 
-Верни ответ в формате JSON:
-{{
-  "project": "название проекта",
-  "role": "F1-F9",
-  "confidence": 0.0-1.0,
-  "reasoning": "краткое объяснение"
-}}
-"""
-
-    try:
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1024,
-            messages=[{
-                "role": "user",
-                "content": prompt
-            }]
-        )
-
-        response_text = message.content[0].text
-
-        # Извлечь JSON из ответа
-        if "```json" in response_text:
-            response_text = response_text.split("```json")[1].split("```")[0]
-        elif "```" in response_text:
-            response_text = response_text.split("```")[1].split("```")[0]
-
-        result = json.loads(response_text.strip())
-        return result
-
-    except Exception as e:
-        print(f"❌ Ошибка анализа: {e}")
-        return None
-
-def create_draft(note, project, role, reasoning):
-    """Создать черновик в папке проекта"""
-    draft_path = Path(f"2. Черновики/{project}")
-    draft_path.mkdir(parents=True, exist_ok=True)
-
-    # Создать frontmatter
-    today = datetime.now().strftime("%Y-%m-%d")
+def create_frontmatter(analysis, filename):
+    """Создать frontmatter для заметки"""
+    now = datetime.now().strftime("%Y-%m-%d")
 
     frontmatter = f"""---
-role: {role}
-project: {project}
+project: {analysis['project']}
+role: {analysis['role']}
 status: черновик
-created: {today}
-updated: {today}
+created: {now}
+updated: {now}
+tags: {json.dumps(analysis['tags'], ensure_ascii=False)}
+description: {analysis['description']}
+original_file: {filename}
 ---
 
-# {note['name'].replace('.md', '')}
+"""
+    return frontmatter
 
-## Исходная заметка
 
-{note['content']}
+def ensure_project_structure(project_name):
+    """Создать структуру папок для нового проекта"""
+    # Создать папку в черновиках
+    drafts_project = DRAFTS_PATH / project_name
+    drafts_project.mkdir(exist_ok=True)
 
-## Анализ AI
+    # Создать структуру FPF в приоритетных проектах
+    priority_project = PRIORITY_PROJECTS / project_name
+    priority_project.mkdir(exist_ok=True)
 
-**Проект:** {project}
-**Роль:** {role} - {FPF_ROLES[role]}
-**Обоснование:** {reasoning}
+    for role_code, role_info in FPF_ROLES.items():
+        role_folder = priority_project / f"{role_code}-{role_info['name']}"
+        role_folder.mkdir(exist_ok=True)
 
-## Рекомендации
+    print(f"✅ Создана структура для нового проекта: {project_name}")
 
-- Доработать содержание
-- Добавить связи с другими заметками
-- Переместить в соответствующую папку проекта после доработки
 
----
+def process_note(note_path):
+    """Обработать одну заметку"""
+    filename = note_path.name
 
-*Создано AI агентом: {today}*
+    # Пропустить README
+    if filename == "README.md":
+        return None
+
+    print(f"\n📝 Обрабатываю: {filename}")
+
+    # Прочитать содержимое
+    with open(note_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Пропустить пустые заметки
+    if not content.strip():
+        print(f"⚠️  Пропускаю пустую заметку: {filename}")
+        return None
+
+    # Анализ по ключевым словам
+    analysis = analyze_by_keywords(content)
+
+    print(f"   Проект: {analysis['project']} (уверенность: {analysis['confidence']})")
+    print(f"   Роль: {analysis['role']} - {FPF_ROLES[analysis['role']]['name']}")
+    print(f"   Описание: {analysis['description']}")
+    print(f"   Теги: {', '.join(analysis['tags'])}")
+
+    # Создать структуру для нового проекта если нужно
+    if analysis.get('is_new_project', False):
+        ensure_project_structure(analysis['project'])
+
+    # Создать frontmatter
+    frontmatter = create_frontmatter(analysis, filename)
+
+    # Новое содержимое
+    new_content = frontmatter + content
+
+    # Путь к новому файлу в черновиках
+    draft_folder = DRAFTS_PATH / analysis['project']
+    draft_folder.mkdir(exist_ok=True)
+    draft_path = draft_folder / filename
+
+    # Сохранить в черновики
+    with open(draft_path, 'w', encoding='utf-8') as f:
+        f.write(new_content)
+
+    # Удалить из исчезающих заметок
+    note_path.unlink()
+
+    print(f"✅ Перемещено в: {draft_path.relative_to(VAULT_PATH)}")
+
+    return {
+        "filename": filename,
+        "project": analysis['project'],
+        "role": analysis['role'],
+        "description": analysis['description'],
+        "tags": analysis['tags'],
+        "is_new_project": analysis.get('is_new_project', False),
+        "confidence": analysis['confidence']
+    }
+
+
+def create_report(processed_notes):
+    """Создать отчет о работе"""
+    REPORTS_PATH.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now()
+    report_filename = f"distribution-{now.strftime('%Y-%m-%d-%H-%M-%S')}.md"
+    report_path = REPORTS_PATH / report_filename
+
+    report = f"""# Отчет о распределении заметок
+
+**Дата:** {now.strftime('%Y-%m-%d %H:%M:%S')}
+**Обработано заметок:** {len(processed_notes)}
+**Метод:** Анализ по ключевым словам
+
+## Результаты
+
 """
 
-    draft_file = draft_path / note['name']
-    draft_file.write_text(frontmatter, encoding='utf-8')
+    # Группировка по проектам
+    by_project = {}
+    new_projects = []
 
-    return draft_file
+    for note in processed_notes:
+        project = note['project']
+        if project not in by_project:
+            by_project[project] = []
+        by_project[project].append(note)
+
+        if note.get('is_new_project'):
+            new_projects.append(project)
+
+    # Новые проекты
+    if new_projects:
+        report += "### 🆕 Новые проекты\n\n"
+        for project in set(new_projects):
+            report += f"- **{project}** - создана полная структура FPF\n"
+        report += "\n"
+
+    # По проектам
+    for project, notes in by_project.items():
+        report += f"### 📁 {project}\n\n"
+        report += f"Заметок: {len(notes)}\n\n"
+
+        for note in notes:
+            report += f"- **{note['filename']}**\n"
+            report += f"  - Роль: {note['role']} - {FPF_ROLES[note['role']]['name']}\n"
+            report += f"  - Уверенность: {note['confidence']}/10\n"
+            report += f"  - Описание: {note['description']}\n"
+            report += f"  - Теги: {', '.join(note['tags'])}\n\n"
+
+    report += f"""
+---
+
+**Следующие шаги:**
+1. Просмотрите черновики в папке `2. Черновики/`
+2. Проверьте правильность распределения
+3. Доработайте содержание заметок
+4. Переместите готовые заметки в `3. Приоритетные проекты/`
+
+**Статистика:**
+- Всего проектов: {len(by_project)}
+- Новых проектов: {len(set(new_projects))}
+- Обработано заметок: {len(processed_notes)}
+
+**Примечание:**
+Распределение выполнено автоматически на основе ключевых слов.
+Проверьте правильность категоризации и при необходимости переместите заметки вручную.
+"""
+
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write(report)
+
+    print(f"\n📊 Отчет сохранен: {report_path.relative_to(VAULT_PATH)}")
+    return report_path
+
 
 def main():
+    """Основная функция"""
+    print("🤖 AI Агент распределения заметок (Автоматический режим)")
     print("=" * 60)
-    print("🤖 Распределение заметок по черновикам")
+    print("Метод: Анализ по ключевым словам")
     print("=" * 60)
 
-    # Получить заметки
-    notes = get_notes_from_inbox()
-    print(f"\n📝 Найдено заметок: {len(notes)}")
+    # Проверить наличие заметок
+    notes = list(VANISHING_NOTES.glob("*.md"))
+    notes = [n for n in notes if n.name != "README.md"]
 
     if not notes:
-        print("ℹ️  Нет заметок для обработки")
+        print("\n✅ Нет заметок для обработки в папке 'Исчезающие заметки'")
         return
 
-    processed = 0
+    print(f"\n📋 Найдено заметок: {len(notes)}")
 
-    for note in notes:
-        print(f"\n📄 Обработка: {note['name']}")
+    # Обработать каждую заметку
+    processed = []
+    for note_path in notes:
+        result = process_note(note_path)
+        if result:
+            processed.append(result)
 
-        # Анализ с Claude
-        analysis = analyze_note_with_claude(note)
+    # Создать отчет
+    if processed:
+        create_report(processed)
+        print(f"\n✅ Успешно обработано: {len(processed)} заметок")
+    else:
+        print("\n⚠️  Ни одна заметка не была обработана")
 
-        if not analysis:
-            print(f"⏭️  Пропуск: не удалось проанализировать")
-            continue
-
-        project = analysis.get('project')
-        role = analysis.get('role')
-        confidence = analysis.get('confidence', 0)
-        reasoning = analysis.get('reasoning', '')
-
-        if project not in PROJECTS:
-            print(f"⚠️  Неизвестный проект: {project}")
-            continue
-
-        if role not in FPF_ROLES:
-            print(f"⚠️  Неизвестная роль: {role}")
-            continue
-
-        print(f"   → Проект: {project}")
-        print(f"   → Роль: {role}")
-        print(f"   → Уверенность: {confidence:.0%}")
-
-        # Создать черновик
-        draft_file = create_draft(note, project, role, reasoning)
-        print(f"   ✅ Создан черновик: {draft_file}")
-
-        # Удалить исходную заметку
-        note['path'].unlink()
-        print(f"   🗑️  Удалена исходная заметка")
-
-        processed += 1
-
-    print("\n" + "=" * 60)
-    print(f"✨ Обработано заметок: {processed}/{len(notes)}")
-    print("=" * 60)
 
 if __name__ == "__main__":
     main()
