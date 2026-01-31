@@ -1,0 +1,20 @@
+/* Скрыть разделители ChatGPT */
+hr.__chatgpt_plugin {
+    display: none !important;
+}
+
+/* Скрыть метки моделей в скобках */
+h3 span[style*="font-size"] {
+    display: none !important;
+}
+
+/* Скрыть текст "role::" */
+.markdown-preview-view h3::before {
+    content: none !important;
+}
+
+/* Улучшить отображение заголовков чата */
+.markdown-preview-view h3 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
