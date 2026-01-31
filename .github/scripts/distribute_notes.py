@@ -25,7 +25,7 @@ PROJECTS = {
         "description": "Развитие кофейного маркета"
     },
     "Marathon-v2": {
-        "keywords": ["марафон", "адаптация", "обучение", "онбординг", "сотрудник", "программа", "тренинг", "курс"],
+        "keywords": ["марафон", "адаптация", "обучение", "онбординг", "сотрудник", "программа", "тренинг", "курс", "бот", "лента", "задание", "ученик", "прогресс", "режим"],
         "description": "Программа адаптации сотрудников"
     },
     "Creative-Convector": {
@@ -90,7 +90,7 @@ def analyze_by_keywords(content):
     best_score = project_scores[best_project]
 
     # Если score слишком низкий, создать новый проект
-    if best_score < 2:
+    if best_score < 1:
         # Попробовать извлечь название из первой строки
         first_line = content.split('\n')[0].strip('#').strip()
         if len(first_line) > 3 and len(first_line) < 50:
