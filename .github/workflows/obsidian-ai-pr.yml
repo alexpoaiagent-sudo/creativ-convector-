@@ -1,14 +1,17 @@
-name: Obsidian AI PR
+name: AI Agent - Enrich Notes (optional)
 
+# Запускается ТОЛЬКО вручную (требует OPENAI_API_KEY в секретах GitHub)
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   enrich-notes:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,18 +23,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install OpenAI
-        run: pip install openai
+      - name: Install dependencies
+        run: pip install openai anthropic
 
       - name: Enrich notes
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python .github/scripts/enrich_notes.py
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: 'chore: enrich obsidian notes'
-          title: 'chore: enrich obsidian notes'
-          body: 'Automated enrichment of obsidian notes.'
-          branch: 'chore/obsidian-notes'
+          commit-message: 'ai: enrich obsidian notes'
+          title: 'AI: enriched notes'
+          body: 'Automated enrichment of obsidian notes using AI.'
+          branch: 'ai/enrich-notes'

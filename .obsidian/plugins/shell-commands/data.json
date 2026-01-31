@@ -4,38 +4,62 @@
       "id": "weekly-report",
       "name": "Generate Weekly Report",
       "command": "cd {{vault_path}} && python3 .obsidian/scripts/weekly_report.py",
-      "icon": "📊",
+      "icon": "bar-chart-2",
       "showInCommandPalette": true,
       "showInFileMenu": false
     },
     {
-      "id": "enhance-note",
-      "name": "AI: Enhance Note",
-      "command": "cd {{vault_path}} && python3 .obsidian/scripts/enhance_note.py {{file_path}}",
-      "icon": "✨",
+      "id": "enhance-note-claude",
+      "name": "AI (Claude): Enhance Note",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/enhance_note.py '{{file_path}}' claude",
+      "icon": "sparkles",
       "showInCommandPalette": true,
       "showInFileMenu": true
     },
     {
-      "id": "ai-analysis",
-      "name": "AI: Create Separate Analysis",
-      "command": "cd {{vault_path}} && python3 .obsidian/scripts/ai_agent.py {{file_path}}",
-      "icon": "🤖",
+      "id": "enhance-note-openai",
+      "name": "AI (ChatGPT): Enhance Note",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/enhance_note.py '{{file_path}}' openai",
+      "icon": "sparkles",
       "showInCommandPalette": true,
       "showInFileMenu": true
+    },
+    {
+      "id": "ai-analysis-claude",
+      "name": "AI (Claude): Create Analysis",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/ai_agent.py '{{file_path}}' claude",
+      "icon": "brain",
+      "showInCommandPalette": true,
+      "showInFileMenu": true
+    },
+    {
+      "id": "ai-analysis-openai",
+      "name": "AI (ChatGPT): Create Analysis",
+      "command": "cd {{vault_path}} && python3 .obsidian/scripts/ai_agent.py '{{file_path}}' openai",
+      "icon": "brain",
+      "showInCommandPalette": true,
+      "showInFileMenu": true
+    },
+    {
+      "id": "distribute-notes",
+      "name": "AI: Distribute Notes",
+      "command": "cd {{vault_path}} && python3 .github/scripts/distribute_notes.py",
+      "icon": "folder-input",
+      "showInCommandPalette": true,
+      "showInFileMenu": false
     },
     {
       "id": "git-status",
       "name": "Git Status",
       "command": "cd {{vault_path}} && git status",
-      "icon": "📊",
+      "icon": "git-branch",
       "showInCommandPalette": true
     },
     {
       "id": "git-commit-push",
       "name": "Git Commit & Push",
       "command": "cd {{vault_path}} && git add . && git commit -m 'update: {{date}}' && git push",
-      "icon": "🚀",
+      "icon": "upload",
       "showInCommandPalette": true
     }
   ]
