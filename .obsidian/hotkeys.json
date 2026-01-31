@@ -2,8 +2,8 @@
   "chatgpt-md:call-chatgpt-api": [
     {
       "modifiers": [
-        "Alt",
-        "Mod"
+        "Mod",
+        "Shift"
       ],
       "key": "C"
     }

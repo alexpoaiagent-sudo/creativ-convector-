@@ -20,3 +20,4 @@
 **/private/
 **/confidential/
 .env
+.obsidian/plugins/chatgpt-md/data.json
