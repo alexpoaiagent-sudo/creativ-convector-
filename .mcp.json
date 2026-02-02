@@ -1,1 +1,11 @@
-{"mcpServers":{}}
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "@huangyihe/obsidian-mcp"],
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "/Users/alexander/Documents/creativ-convector.nocloud"
+      }
+    }
+  }
+}
