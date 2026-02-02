@@ -1,13 +1,4 @@
 {
-  "chatgpt-md:call-chatgpt-api": [
-    {
-      "modifiers": [
-        "Mod",
-        "Shift"
-      ],
-      "key": "C"
-    }
-  ],
   "chatgpt-md:select-model-command": [
     {
       "modifiers": [
@@ -15,6 +6,15 @@
         "Mod"
       ],
       "key": "M"
+    }
+  ],
+  "chatgpt-md:call-chatgpt-api": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "C"
     }
   ]
 }
