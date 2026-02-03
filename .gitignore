@@ -21,3 +21,4 @@
 **/confidential/
 .env
 .obsidian/plugins/chatgpt-md/data.json
+.obsidian/plugins/cao/data.json

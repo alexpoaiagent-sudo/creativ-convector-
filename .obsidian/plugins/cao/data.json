@@ -1,0 +1,29 @@
+{
+  "provider": "anthropic",
+  "anthropicApiKey": "",
+  "openaiApiKey": "",
+  "baseURL": "",
+  "maxTokens": 1024,
+  "anthropicModel": "claude-sonnet-4-5",
+  "openaiModel": "gpt-4o",
+  "systemPrompt": "You are a helpful AI assistant",
+  "temperature": 1,
+  "chatFolderPath": "CAO/history",
+  "streamingResponse": true,
+  "showStats": true,
+  "useCallouts": false,
+  "customPrompts": [
+    {
+      "name": "Summarize",
+      "template": "Please provide a comprehensive summary of the following content. Include the main points, key takeaways, and important details:\n\n{cursor}"
+    },
+    {
+      "name": "Rewrite",
+      "template": "Please rewrite the following text to improve clarity, readability, and flow while maintaining the original meaning and tone:\n\n{cursor}"
+    },
+    {
+      "name": "Explain like I'm 5",
+      "template": "Please explain {cursor} in simple terms that a 5-year-old could understand. Use everyday examples and avoid complex terminology."
+    }
+  ]
+}
