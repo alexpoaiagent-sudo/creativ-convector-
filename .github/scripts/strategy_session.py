@@ -144,8 +144,36 @@ def analyze_note(content):
     return "Разное"
 
 
+def get_role_from_frontmatter(content):
+    """Извлекает роль из frontmatter"""
+    frontmatter_match = re.match(r'^---\n(.*?)\n---\n', content, re.DOTALL)
+    if not frontmatter_match:
+        return None
+
+    frontmatter = frontmatter_match.group(1)
+    role_match = re.search(r'^role:\s*(\w+)', frontmatter, re.MULTILINE)
+
+    if role_match:
+        return role_match.group(1)
+    return None
+
+
+# Маппинг ролей на папки FPF
+ROLE_FOLDERS = {
+    "F1": "F1-Предприниматель-Контекст",
+    "F2": "F2-Инженер-Окружение",
+    "F3": "F3-Менеджер-Взаимодействие",
+    "F4": "F4-Предприниматель-Требования",
+    "F5": "F5-Инженер-Архитектура",
+    "F6": "F6-Менеджер-Реализация",
+    "F7": "F7-Предприниматель-Принципы",
+    "F8": "F8-Инженер-Платформа",
+    "F9": "F9-Менеджер-Команда"
+}
+
+
 def distribute_notes():
-    """Этап 1: Распределение заметок по черновикам"""
+    """Этап 1: Распределение заметок по черновикам с структурой FPF"""
     print("🚀 ЭТАП 1: Распределение заметок по черновикам\n")
 
     processed_notes = []
@@ -178,18 +206,27 @@ def distribute_notes():
         # Определяем проект
         project = analyze_note(content)
 
-        # Создаем папку проекта если не существует
-        project_dir = DRAFTS_DIR / project
-        project_dir.mkdir(parents=True, exist_ok=True)
+        # Извлекаем роль из frontmatter
+        role = get_role_from_frontmatter(content)
 
-        # Перемещаем файл
-        dest_path = project_dir / note_path.name
+        # Если роль не определена, используем F4 по умолчанию
+        if not role or role not in ROLE_FOLDERS:
+            role = "F4"
+            print(f"⚠️  {note_path.name} - роль не определена, используем F4")
+
+        # Создаем путь с структурой FPF: Проект/F#-Роль/
+        project_dir = DRAFTS_DIR / project
+        role_dir = project_dir / ROLE_FOLDERS[role]
+        role_dir.mkdir(parents=True, exist_ok=True)
+
+        # Целевой путь для файла
+        dest_path = role_dir / note_path.name
 
         # Если файл уже существует, добавляем timestamp
         if dest_path.exists():
             timestamp = datetime.now().strftime("%H%M%S")
             name_parts = note_path.stem, timestamp, note_path.suffix
-            dest_path = project_dir / f"{name_parts[0]}_{name_parts[1]}{name_parts[2]}"
+            dest_path = role_dir / f"{name_parts[0]}_{name_parts[1]}{name_parts[2]}"
 
         try:
             # Записываем обновленное содержимое
@@ -201,6 +238,7 @@ def distribute_notes():
 
             print(f"✅ {note_path.name}")
             print(f"   → Проект: {project}")
+            print(f"   → Роль: {role} ({ROLE_FOLDERS[role]})")
             print(f"   → Путь: {dest_path.relative_to(BASE_DIR)}\n")
 
             # Сохраняем информацию для консолидации
