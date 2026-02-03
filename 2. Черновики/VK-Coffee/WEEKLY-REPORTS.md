@@ -1,6 +1,9 @@
 ---
 project: VK-Coffee
 role: F5
+role_full: F5-Инженер-Архитектура
+role_description: Как устроена внутри? Структура, компоненты
+role_system: Целевая система (System-of-Interest)
 status: черновик
 created: 2026-01-26
 updated: 2026-01-26

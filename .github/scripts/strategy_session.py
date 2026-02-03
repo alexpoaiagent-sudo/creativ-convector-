@@ -10,6 +10,7 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
+import re
 
 # Пути
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -26,6 +27,102 @@ PROJECTS = {
     "Космическая одисея 2001": ["космос", "одиссея", "2001"],
     "Разное": []  # Дефолтный проект для неопределенных заметок
 }
+
+# Расшифровка ролей FPF (таблица 3×3)
+ROLE_DESCRIPTIONS = {
+    "F1": {
+        "name": "F1-Предприниматель-Контекст",
+        "description": "Зачем нужен проект? Рынок, клиенты, проблема",
+        "system": "Надсистема (Suprasystem)",
+        "role": "Предприниматель"
+    },
+    "F2": {
+        "name": "F2-Инженер-Окружение",
+        "description": "С чем работает система? Интерфейсы, технологии",
+        "system": "Надсистема (Suprasystem)",
+        "role": "Инженер"
+    },
+    "F3": {
+        "name": "F3-Менеджер-Взаимодействие",
+        "description": "Как связана с другими? Партнёры, интеграции",
+        "system": "Надсистема (Suprasystem)",
+        "role": "Менеджер"
+    },
+    "F4": {
+        "name": "F4-Предприниматель-Требования",
+        "description": "Что должна делать? Ценность, функции",
+        "system": "Целевая система (System-of-Interest)",
+        "role": "Предприниматель"
+    },
+    "F5": {
+        "name": "F5-Инженер-Архитектура",
+        "description": "Как устроена внутри? Структура, компоненты",
+        "system": "Целевая система (System-of-Interest)",
+        "role": "Инженер"
+    },
+    "F6": {
+        "name": "F6-Менеджер-Реализация",
+        "description": "Как работает на практике? Процессы, операции",
+        "system": "Целевая система (System-of-Interest)",
+        "role": "Менеджер"
+    },
+    "F7": {
+        "name": "F7-Предприниматель-Принципы",
+        "description": "Почему именно так? Экономика, стратегия",
+        "system": "Система создания (Constructor)",
+        "role": "Предприниматель"
+    },
+    "F8": {
+        "name": "F8-Инженер-Платформа",
+        "description": "На чём построена? Инструменты, технологии",
+        "system": "Система создания (Constructor)",
+        "role": "Инженер"
+    },
+    "F9": {
+        "name": "F9-Менеджер-Команда",
+        "description": "Кто и как создаёт? Люди, методология",
+        "system": "Система создания (Constructor)",
+        "role": "Менеджер"
+    }
+}
+
+
+def update_frontmatter_with_role_description(content):
+    """Обновляет frontmatter, добавляя расшифровку роли"""
+    # Ищем frontmatter
+    frontmatter_match = re.match(r'^---\n(.*?)\n---\n', content, re.DOTALL)
+
+    if not frontmatter_match:
+        return content
+
+    frontmatter = frontmatter_match.group(1)
+    rest_content = content[frontmatter_match.end():]
+
+    # Ищем роль в frontmatter
+    role_match = re.search(r'^role:\s*(\w+)', frontmatter, re.MULTILINE)
+
+    if not role_match:
+        return content
+
+    role_code = role_match.group(1)
+
+    # Если роль есть в справочнике, добавляем описание
+    if role_code in ROLE_DESCRIPTIONS:
+        role_info = ROLE_DESCRIPTIONS[role_code]
+
+        # Проверяем, нет ли уже расширенной информации
+        if "role_full" not in frontmatter:
+            # Заменяем простую роль на расширенную
+            new_frontmatter = re.sub(
+                r'^role:\s*\w+',
+                f'role: {role_code}\nrole_full: {role_info["name"]}\nrole_description: {role_info["description"]}\nrole_system: {role_info["system"]}',
+                frontmatter,
+                flags=re.MULTILINE
+            )
+
+            return f'---\n{new_frontmatter}\n---\n{rest_content}'
+
+    return content
 
 
 def analyze_note(content):
@@ -75,6 +172,9 @@ def distribute_notes():
             print(f"❌ Ошибка чтения {note_path.name}: {e}")
             continue
 
+        # Обновляем frontmatter с расшифровкой роли
+        content = update_frontmatter_with_role_description(content)
+
         # Определяем проект
         project = analyze_note(content)
 
@@ -92,7 +192,13 @@ def distribute_notes():
             dest_path = project_dir / f"{name_parts[0]}_{name_parts[1]}{name_parts[2]}"
 
         try:
-            shutil.move(str(note_path), str(dest_path))
+            # Записываем обновленное содержимое
+            with open(dest_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            # Удаляем оригинальный файл
+            note_path.unlink()
+
             print(f"✅ {note_path.name}")
             print(f"   → Проект: {project}")
             print(f"   → Путь: {dest_path.relative_to(BASE_DIR)}\n")
@@ -167,6 +273,86 @@ def create_consolidated_file(processed_notes):
         print(f"❌ Ошибка создания файла: {e}")
 
 
+def update_existing_notes():
+    """Обновляет существующие заметки в черновиках и приоритетных проектах, добавляя расшифровку ролей"""
+    print("\n" + "="*60)
+    print("🔄 ОБНОВЛЕНИЕ СУЩЕСТВУЮЩИХ ЗАМЕТОК\n")
+
+    updated_count = 0
+
+    # Папки для обработки
+    folders_to_process = [
+        (DRAFTS_DIR, "2. Черновики"),
+        (BASE_DIR / "3. Приоритетные проекты", "3. Приоритетные проекты")
+    ]
+
+    for folder_path, folder_name in folders_to_process:
+        if not folder_path.exists():
+            continue
+
+        print(f"\n📁 Обработка: {folder_name}\n")
+        folder_updated = 0
+
+        # Проходим по всем проектам в папке
+        for project_dir in folder_path.iterdir():
+            if not project_dir.is_dir():
+                continue
+
+            # Для приоритетных проектов нужно пройти по подпапкам F1-F9
+            if folder_name == "3. Приоритетные проекты":
+                # Проходим по папкам F1-F9
+                for role_dir in project_dir.iterdir():
+                    if not role_dir.is_dir():
+                        continue
+
+                    # Проходим по всем MD файлам в папке роли
+                    for note_path in role_dir.glob("*.md"):
+                        try:
+                            # Читаем содержимое
+                            with open(note_path, 'r', encoding='utf-8') as f:
+                                content = f.read()
+
+                            # Обновляем frontmatter
+                            updated_content = update_frontmatter_with_role_description(content)
+
+                            # Если содержимое изменилось, записываем обратно
+                            if updated_content != content:
+                                with open(note_path, 'w', encoding='utf-8') as f:
+                                    f.write(updated_content)
+
+                                folder_updated += 1
+                                print(f"✅ {note_path.relative_to(BASE_DIR)}")
+
+                        except Exception as e:
+                            print(f"❌ Ошибка: {note_path.name}: {e}")
+            else:
+                # Для черновиков - просто проходим по MD файлам
+                for note_path in project_dir.glob("*.md"):
+                    try:
+                        # Читаем содержимое
+                        with open(note_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+
+                        # Обновляем frontmatter
+                        updated_content = update_frontmatter_with_role_description(content)
+
+                        # Если содержимое изменилось, записываем обратно
+                        if updated_content != content:
+                            with open(note_path, 'w', encoding='utf-8') as f:
+                                f.write(updated_content)
+
+                            folder_updated += 1
+                            print(f"✅ {note_path.relative_to(BASE_DIR)}")
+
+                    except Exception as e:
+                        print(f"❌ Ошибка: {note_path.name}: {e}")
+
+        print(f"\n   Обновлено в {folder_name}: {folder_updated}")
+        updated_count += folder_updated
+
+    print(f"\n📊 Всего обновлено заметок: {updated_count}")
+
+
 def main():
     """Главная функция - запуск сессии стратегирования"""
     print("\n" + "="*60)
@@ -179,6 +365,9 @@ def main():
     # Этап 2: Консолидация
     if processed_notes:
         create_consolidated_file(processed_notes)
+
+    # Этап 3: Обновление существующих заметок
+    update_existing_notes()
 
     print("\n" + "="*60)
     print("✅ СЕССИЯ ЗАВЕРШЕНА")

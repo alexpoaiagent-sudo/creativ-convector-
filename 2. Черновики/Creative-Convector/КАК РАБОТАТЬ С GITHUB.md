@@ -1,6 +1,9 @@
 ---
 project: Creative-Convector
 role: F9
+role_full: F9-Менеджер-Команда
+role_description: Кто и как создаёт? Люди, методология
+role_system: Система создания (Constructor)
 status: черновик
 created: 2026-01-26
 updated: 2026-01-26
