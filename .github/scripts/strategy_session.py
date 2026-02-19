@@ -16,7 +16,7 @@ import re
 BASE_DIR = Path(__file__).parent.parent.parent
 INCOMING_DIR = BASE_DIR / "1. Исчезающие заметки"
 DRAFTS_DIR = BASE_DIR / "2. Черновики"
-SESSIONS_DIR = BASE_DIR / "System" / "Сессии стратегирования"
+SESSIONS_DIR = BASE_DIR / "Сессия стратегирования"
 
 # Проекты и их ключевые слова
 PROJECTS = {
