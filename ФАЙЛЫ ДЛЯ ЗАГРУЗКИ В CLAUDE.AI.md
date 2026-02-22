@@ -9,7 +9,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 Или в Finder: `Cmd+Shift+G` → вставь путь:
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/
+/Users/alexander/Github/creativ-convector/
 ```
 
 ---
@@ -18,7 +18,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 ### 1. CLAUDE.md
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/CLAUDE.md
+/Users/alexander/Github/creativ-convector/CLAUDE.md
 ```
 **Что внутри:** Главная инструкция для AI-агента
 
@@ -26,7 +26,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 ### 2. ИНСТРУКЦИЯ ДЛЯ АГЕНТА.md
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/ИНСТРУКЦИЯ ДЛЯ АГЕНТА.md
+/Users/alexander/Github/creativ-convector/ИНСТРУКЦИЯ ДЛЯ АГЕНТА.md
 ```
 **Что внутри:** Как работать с сессиями стратегирования
 
@@ -34,7 +34,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 ### 3. АГЕНТ СИНХРОНИЗАЦИИ.md
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/АГЕНТ СИНХРОНИЗАЦИИ.md
+/Users/alexander/Github/creativ-convector/АГЕНТ СИНХРОНИЗАЦИИ.md
 ```
 **Что внутри:** Как синхронизировать с VK-offee
 
@@ -42,7 +42,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 ### 4. КОМАНДЫ.md
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/КОМАНДЫ.md
+/Users/alexander/Github/creativ-convector/КОМАНДЫ.md
 ```
 **Что внутри:** Список всех команд системы
 
@@ -50,7 +50,7 @@ open ~/Documents/creativ-convector.nocloud/
 
 ### 5. CONTEXT.md
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/CONTEXT.md
+/Users/alexander/Github/creativ-convector/CONTEXT.md
 ```
 **Что внутри:** Контекст проекта
 

@@ -237,14 +237,14 @@ creativ-convector.nocloud/
 ### Вариант 1: Через bash-скрипт (рекомендуется)
 
 ```bash
-cd /Users/alexander/Documents/creativ-convector.nocloud
+cd /Users/alexander/Github/creativ-convector
 ./начать-сессию.sh
 ```
 
 ### Вариант 2: Через Python напрямую
 
 ```bash
-cd /Users/alexander/Documents/creativ-convector.nocloud
+cd /Users/alexander/Github/creativ-convector
 python3 .github/scripts/strategy_session.py
 ```
 
@@ -482,7 +482,7 @@ Claude создаёт файл:
 
 ### Шаг 1: Перейди в директорию
 ```bash
-cd /Users/alexander/Documents/creativ-convector.nocloud
+cd /Users/alexander/Github/creativ-convector
 ```
 
 ### Шаг 2: Запусти скрипт
@@ -562,8 +562,8 @@ cd /Users/alexander/Documents/creativ-convector.nocloud
 
 ### Связанные репозитории
 
-- **VK-offee** (`/Users/alexander/VK-offee/`) — база знаний о кофейнях
-- **creativ-convector** (`/Users/alexander/Documents/creativ-convector.nocloud/`) — этот репозиторий
+- **VK-offee** (`/Users/alexander/Github/VK-offee/`) — база знаний о кофейнях
+- **creativ-convector** (`/Users/alexander/Github/creativ-convector/`) — этот репозиторий
 
 ---
 
@@ -573,7 +573,7 @@ cd /Users/alexander/Documents/creativ-convector.nocloud
 
 ```bash
 # Основной репозиторий
-/Users/alexander/Documents/creativ-convector.nocloud/
+/Users/alexander/Github/creativ-convector/
 
 # Скрипты
 .github/scripts/strategy_session.py
@@ -583,7 +583,7 @@ cd /Users/alexander/Documents/creativ-convector.nocloud
 ./начать-сессию.sh
 
 # Связанный репозиторий
-/Users/alexander/VK-offee/
+/Users/alexander/Github/VK-offee/
 ```
 
 ### Зависимости

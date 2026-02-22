@@ -10,22 +10,22 @@
 
 ### 1. CLAUDE.md - Главная инструкция для агента
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/CLAUDE.md
+/Users/alexander/Github/creativ-convector/CLAUDE.md
 ```
 
 ### 2. ИНСТРУКЦИЯ Claude.ai.md - Пошаговое руководство
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/ИНСТРУКЦИЯ Claude.ai.md
+/Users/alexander/Github/creativ-convector/ИНСТРУКЦИЯ Claude.ai.md
 ```
 
 ### 3. КОМАНДЫ.md - Список команд
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/КОМАНДЫ.md
+/Users/alexander/Github/creativ-convector/КОМАНДЫ.md
 ```
 
 ### 4. CONTEXT.md - Контекст проекта
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/CONTEXT.md
+/Users/alexander/Github/creativ-convector/CONTEXT.md
 ```
 
 ---
@@ -34,12 +34,12 @@
 
 ### 5. 🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md - Руководство пользователя
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md
+/Users/alexander/Github/creativ-convector/🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md
 ```
 
 ### 6. КОМАНДА ДЛЯ CLAUDE.AI.md - Готовая команда для запуска
 ```
-/Users/alexander/Documents/creativ-convector.nocloud/КОМАНДА ДЛЯ CLAUDE.AI.md
+/Users/alexander/Github/creativ-convector/КОМАНДА ДЛЯ CLAUDE.AI.md
 ```
 
 ---
@@ -49,14 +49,14 @@
 ### Вариант 1: Через Finder
 1. Открой Finder
 2. Нажми Cmd+Shift+G (Перейти к папке)
-3. Вставь путь: `/Users/alexander/Documents/creativ-convector.nocloud/`
+3. Вставь путь: `/Users/alexander/Github/creativ-convector/`
 4. Нажми Enter
 5. Выдели нужные файлы (Cmd+клик для множественного выбора)
 6. Перетащи их в окно Claude.ai
 
 ### Вариант 2: Через терминал (открыть папку в Finder)
 ```bash
-open /Users/alexander/Documents/creativ-convector.nocloud/
+open /Users/alexander/Github/creativ-convector/
 ```
 
 ---

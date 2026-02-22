@@ -7,7 +7,7 @@
 ## 📋 Что тебе понадобится
 
 1. Аккаунт на [claude.ai](https://claude.ai)
-2. Доступ к репозиторию на компьютере: `/Users/alexander/Documents/creativ-convector.nocloud/`
+2. Доступ к репозиторию на компьютере: `/Users/alexander/Github/creativ-convector/`
 3. 5-10 минут времени
 
 ---
@@ -35,24 +35,24 @@
 **Обязательные файлы (добавь в первую очередь):**
 
 1. **CLAUDE.md** - главная инструкция для агента
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/CLAUDE.md`
+   - Путь: `/Users/alexander/Github/creativ-convector/CLAUDE.md`
 
 2. **КОМАНДЫ.md** - список команд
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/КОМАНДЫ.md`
+   - Путь: `/Users/alexander/Github/creativ-convector/КОМАНДЫ.md`
 
 3. **🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md** - руководство пользователя
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md`
+   - Путь: `/Users/alexander/Github/creativ-convector/🚀 КАК РАБОТАТЬ С СИСТЕМОЙ.md`
 
 4. **CONTEXT.md** - контекст проекта
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/CONTEXT.md`
+   - Путь: `/Users/alexander/Github/creativ-convector/CONTEXT.md`
 
 **Дополнительные файлы (по желанию):**
 
 5. **начать-сессию.sh** - скрипт запуска
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/начать-сессию.sh`
+   - Путь: `/Users/alexander/Github/creativ-convector/начать-сессию.sh`
 
 6. **strategy_session.py** - Python скрипт
-   - Путь: `/Users/alexander/Documents/creativ-convector.nocloud/.github/scripts/strategy_session.py`
+   - Путь: `/Users/alexander/Github/creativ-convector/.github/scripts/strategy_session.py`
 
 ### 2.2. Как добавит�� файлы в проект?
 
@@ -190,7 +190,7 @@ Claude создаст отчёт:
 **Решение:**
 - Claude.ai не имеет прямого доступа к твоему компьютеру
 - Нужно использовать Claude Code (CLI) для запуска скриптов
-- Или запусти скрипт вручную: `cd /Users/alexander/Documents/creativ-convector.nocloud && ./начать-сессию.sh`
+- Или запусти скрипт вручную: `cd /Users/alexander/Github/creativ-convector && ./начать-сессию.sh`
 - Затем скажи Claude: "Прочитай последний консолидированный файл и создай отчёт"
 
 ### Проблема 3: Нет заметок для обработки

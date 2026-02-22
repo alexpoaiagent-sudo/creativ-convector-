@@ -261,8 +261,8 @@ python3 .github/scripts/analyze_gaps.py
 - Создаёт отчёт о найденных совпадениях
 
 **Пути:**
-- VK-offee: `/Users/alexander/VK-offee`
-- creativ-convector: `/Users/alexander/Documents/creativ-convector.nocloud`
+- VK-offee: `/Users/alexander/Github/VK-offee`
+- creativ-convector: `/Users/alexander/Github/creativ-convector`
 
 ---
 
@@ -447,8 +447,8 @@ cd ~/VK-offee/telegram-bot
 
 ### Пути к репозиториям:
 
-- **creativ-convector:** `/Users/alexander/Documents/creativ-convector.nocloud`
-- **VK-offee:** `/Users/alexander/VK-offee`
+- **creativ-convector:** `/Users/alexander/Github/creativ-convector`
+- **VK-offee:** `/Users/alexander/Github/VK-offee`
 
 ### GitHub репозитории:
 

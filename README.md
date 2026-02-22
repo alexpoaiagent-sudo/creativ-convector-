@@ -778,7 +778,7 @@ keywords = ["латте", "бариста", "обучение", "молоко"]
 ### Связанные репозитории
 
 - **VK-offee** — база знаний кофейни
-  - Путь: `/Users/alexander/VK-offee/`
+  - Путь: `/Users/alexander/Github/VK-offee/`
   - GitHub: https://github.com/alexpoaiagent-sudo/VK-offee
 
 ### Как работает синхронизация

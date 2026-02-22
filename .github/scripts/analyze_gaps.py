@@ -11,8 +11,8 @@ import re
 from datetime import datetime
 
 # Пути к репозиториям
-VK_OFFEE_PATH = Path("/Users/alexander/VK-offee")
-CONVECTOR_PATH = Path("/Users/alexander/Documents/creativ-convector.nocloud")
+VK_OFFEE_PATH = Path("/Users/alexander/Github/VK-offee")
+CONVECTOR_PATH = Path("/Users/alexander/Github/creativ-convector")
 
 def analyze_gaps_in_vk_offee():
     """Анализ пробелов в VK-offee"""
