@@ -18,6 +18,11 @@ INCOMING_DIR = BASE_DIR / "1. Исчезающие заметки"
 DRAFTS_DIR = BASE_DIR / "2. Черновики"
 SESSIONS_DIR = BASE_DIR / "Сессия стратегирования"
 
+# Obsidian .nocloud пути
+NOCLOUD_DIR = Path.home() / "Documents/creativ-convector.nocloud"
+NOCLOUD_INCOMING = NOCLOUD_DIR / "1. Исчезающие заметки"
+NOCLOUD_PROCESSED = NOCLOUD_DIR / "System/Обработано"
+
 # Проекты и их ключевые слова
 PROJECTS = {
     "VK-Coffee": ["кофе", "кофейня", "бариста", "эспрессо", "латте", "капучино", "вк", "vk", "coffee"],
@@ -235,8 +240,23 @@ def distribute_notes():
             with open(dest_path, 'w', encoding='utf-8') as f:
                 f.write(content)
 
-            # Удаляем оригинальный файл
+            # Удаляем оригинальный файл из GitHub
             note_path.unlink()
+
+            # Копируем в Obsidian System/Обработано/YYYY-MM-DD/
+            today = datetime.now().strftime("%Y-%m-%d")
+            nocloud_dest_dir = NOCLOUD_PROCESSED / today
+            nocloud_dest_dir.mkdir(parents=True, exist_ok=True)
+            nocloud_dest = nocloud_dest_dir / note_path.name
+            try:
+                with open(nocloud_dest, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                # Удаляем из Obsidian "1. Исчезающие заметки"
+                nocloud_src = NOCLOUD_INCOMING / note_path.name
+                if nocloud_src.exists():
+                    nocloud_src.unlink()
+            except Exception as e:
+                print(f"⚠️  Obsidian archive error for {note_path.name}: {e}")
 
             print(f"✅ {note_path.name}")
             print(f"   → Проект: {project}")
