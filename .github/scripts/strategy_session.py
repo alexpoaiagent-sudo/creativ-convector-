@@ -309,8 +309,10 @@ def create_consolidated_file(processed_notes):
         print(f"📄 Размер: {session_file.stat().st_size} байт")
         print(f"📊 Проектов: {len(by_project)}")
         print(f"📝 Заметок: {len(processed_notes)}")
+        return session_file
     except Exception as e:
         print(f"❌ Ошибка создания файла: {e}")
+        return None
 
 
 def update_existing_notes():
@@ -403,10 +405,54 @@ def run_session_import():
                                 capture_output=True, text=True)
         if result.returncode == 0:
             print("✅ session-import завершён — captures добавлены в DS-strategy/inbox/")
+            return True
         else:
             print(f"⚠️  session-import завершился с ошибкой: {result.stderr[:200]}")
+            return False
     else:
         print("⚠️  extractor.sh не найден — session-import пропущен")
+        return False
+
+
+def print_final_report(processed_notes, session_file, import_ok):
+    """Финальный отчёт по всем ключевым точкам сессии"""
+    from collections import Counter
+    print("\n" + "="*60)
+    print("📋 ИТОГОВЫЙ ОТЧЁТ СЕССИИ СТРАТЕГИРОВАНИЯ")
+    print("="*60)
+
+    # 1. Файл сессии
+    if session_file:
+        print(f"\n✅ Файл сессии создан и сохранён в Obsidian:")
+        print(f"   {session_file.name}")
+    else:
+        print(f"\n⚠️  Файл сессии не создан")
+
+    # 2. Заметки
+    if processed_notes:
+        by_project = Counter(n['project'] for n in processed_notes)
+        print(f"\n✅ Обработано заметок: {len(processed_notes)}")
+        for project, count in sorted(by_project.items()):
+            print(f"   • {project}: {count} шт → 2. Черновики/{project}/")
+    else:
+        print(f"\n📭 Заметок для обработки не было")
+
+    # 3. Экстракция в DS-strategy
+    vk_notes = [n for n in processed_notes if n['project'] == 'VK-Coffee']
+    if import_ok:
+        print(f"\n✅ Отфильтровано для VK Coffee: {len(vk_notes)} заметок")
+        print(f"   → Отправлено в DS-strategy/inbox/captures.md")
+        print(f"   → Экстрактор обработает в течение 3 часов")
+        print(f"   → После одобрения попадёт в PACK-cafe-operations")
+    elif vk_notes:
+        print(f"\n⚠️  VK Coffee заметок найдено {len(vk_notes)}, но session-import не запустился")
+        print(f"   Запусти вручную: extractor.sh session-import")
+    else:
+        print(f"\n📭 Заметок по VK Coffee не найдено — экстракция не нужна")
+
+    print("\n" + "="*60)
+    print("✅ СЕССИЯ СТРАТЕГИРОВАНИЯ ЗАВЕРШЕНА")
+    print("="*60 + "\n")
 
 
 def main():
@@ -419,18 +465,18 @@ def main():
     processed_notes = distribute_notes()
 
     # Этап 2: Консолидация
+    session_file = None
     if processed_notes:
-        create_consolidated_file(processed_notes)
+        session_file = create_consolidated_file(processed_notes)
 
     # Этап 3: Обновление существующих заметок
     update_existing_notes()
 
     # Этап 4: Экстракция знаний VK Coffee → DS-strategy/inbox/
-    run_session_import()
+    import_ok = run_session_import() if processed_notes else False
 
-    print("\n" + "="*60)
-    print("✅ СЕССИЯ ЗАВЕРШЕНА")
-    print("="*60 + "\n")
+    # Этап 5: Финальный отчёт
+    print_final_report(processed_notes, session_file, import_ok)
 
 
 if __name__ == "__main__":
