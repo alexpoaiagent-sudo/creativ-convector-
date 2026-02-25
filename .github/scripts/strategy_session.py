@@ -395,23 +395,21 @@ def update_existing_notes():
     print(f"\n📊 Всего обновлено заметок: {updated_count}")
 
 
-def run_session_import():
-    """Запуск экстрактора после сессии стратегирования"""
-    import subprocess
-    extractor = Path.home() / "Github/FMT-exocortex-template/roles/extractor/scripts/extractor.sh"
-    if extractor.exists():
-        print("\n🔄 Запуск session-import (экстракция знаний VK Coffee)...")
-        result = subprocess.run(["bash", str(extractor), "session-import"],
-                                capture_output=True, text=True)
-        if result.returncode == 0:
-            print("✅ session-import завершён — captures добавлены в DS-strategy/inbox/")
-            return True
-        else:
-            print(f"⚠️  session-import завершился с ошибкой: {result.stderr[:200]}")
-            return False
-    else:
-        print("⚠️  extractor.sh не найден — session-import пропущен")
+def run_session_import(session_file):
+    """Кладёт файл сессии в pending-sessions для обработки внешним агентом"""
+    import shutil
+    if not session_file:
         return False
+
+    pending_dir = Path.home() / "Github/DS-strategy/inbox/pending-sessions"
+    pending_dir.mkdir(parents=True, exist_ok=True)
+
+    dest = pending_dir / session_file.name
+    shutil.copy2(session_file, dest)
+    print(f"\n🔄 Файл сессии отправлен в очередь экстрактора:")
+    print(f"   {dest.relative_to(Path.home())}")
+    print(f"   → Экстрактор обработает в течение 5 минут")
+    return True
 
 
 def print_final_report(processed_notes, session_file, import_ok):
@@ -472,8 +470,8 @@ def main():
     # Этап 3: Обновление существующих заметок
     update_existing_notes()
 
-    # Этап 4: Экстракция знаний VK Coffee → DS-strategy/inbox/
-    import_ok = run_session_import() if processed_notes else False
+    # Этап 4: Отправить файл сессии в очередь экстрактора
+    import_ok = run_session_import(session_file) if session_file else False
 
     # Этап 5: Финальный отчёт
     print_final_report(processed_notes, session_file, import_ok)
