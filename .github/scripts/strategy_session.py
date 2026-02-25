@@ -476,6 +476,12 @@ def main():
     # Этап 5: Финальный отчёт
     print_final_report(processed_notes, session_file, import_ok)
 
+    # Этап 6: Отчёт по цепочке
+    chain_report = Path.home() / "Github/FMT-exocortex-template/roles/extractor/scripts/chain-report.sh"
+    if chain_report.exists():
+        import subprocess
+        subprocess.run(["bash", str(chain_report), str(session_file) if session_file else ""])
+
 
 if __name__ == "__main__":
     main()
