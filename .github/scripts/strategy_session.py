@@ -329,6 +329,17 @@ def create_consolidated_file(processed_notes):
         print(f"📄 Размер: {session_file.stat().st_size} байт")
         print(f"📊 Проектов: {len(by_project)}")
         print(f"📝 Заметок: {len(processed_notes)}")
+
+        # Копируем файл сессии в Obsidian vault для ручного просмотра
+        nocloud_sessions_dir = NOCLOUD_DIR / "Сессия стратегирования"
+        nocloud_sessions_dir.mkdir(parents=True, exist_ok=True)
+        nocloud_session_file = nocloud_sessions_dir / session_file.name
+        try:
+            shutil.copy2(session_file, nocloud_session_file)
+            print(f"✅ Скопирован в Obsidian: {nocloud_session_file.relative_to(NOCLOUD_DIR)}")
+        except Exception as e:
+            print(f"⚠️  Ошибка копирования в Obsidian: {e}")
+
         return session_file
     except Exception as e:
         print(f"❌ Ошибка создания файла: {e}")
